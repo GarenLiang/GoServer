@@ -1,8 +1,7 @@
 package main
 import (
   "fmt"
-  "time"
-  "math/rand"
+  "github.com/gorilla/websocket"
 )
 type Message struct {
   Name string `json:"name"`
@@ -10,35 +9,30 @@ type Message struct {
 }
 type Client struct {
   send chan Message
+  socket *websocket.Conn
 }
-func (client *Client) write(){
+func (client *Client) Read() {
+  var message Message
+  for {
+    if err := client.socket.ReadJSON(&message); err != nil {
+      break
+    }
+    //what function to call
+  }
+}
+func (client *Client) Write(){
   for msg := range client.send {
-    fmt.Printf("%#v\n", msg)
+    if err := client.socket.WriteJSON(msg); err != nil {
+      break
+    }
   }
+  client.socket.Close()
 }
-func (client *Client) subscribeChannel(){
-  for {
-    time.Sleep(r())
-    client.send <- Message{"channel add",""}
-  }
-}
-func (client *Client) subscribeMessages(){
-  for {
-    time.Sleep(r())
-    client.send <- Message{"message add",""}
-  }
-}
-func r() time.Duration {
-  return time.Millisecond * time.Duration(rand.Intn(1000))
-}
-func NewClient() *Client{
+
+
+func NewClient(socket *websocket.Conn) *Client{
   return &Client{
     send: make(chan Message),
+    socket: socket
   }
-}
-func main() {
-  client := NewClient()
-  go client.subscribeChannel()
-  go client.subscribeMessages()
-  client.write()
 }
