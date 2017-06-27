@@ -60,5 +60,9 @@ func subscribeChannel(client *Client, data interface{}) {
 				}
 			}
 		}
-	}
+	}()
+}
+
+func unsubscribeChannel(client *Client, data interface{}) {
+	client.StopForKey(ChannelStop)
 }
